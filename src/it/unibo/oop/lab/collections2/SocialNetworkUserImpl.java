@@ -1,7 +1,10 @@
 package it.unibo.oop.lab.collections2;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -29,6 +32,7 @@ public class SocialNetworkUserImpl<U extends User> extends UserImpl implements S
      * 
      * think of what type of keys and values would best suit the requirements
      */
+	private final Map<String, List<U>> followed;
 
     /*
      * [CONSTRUCTORS]
@@ -40,6 +44,10 @@ public class SocialNetworkUserImpl<U extends User> extends UserImpl implements S
      * 
      * 2) Define a further constructor where age is defaulted to -1
      */
+	
+	public SocialNetworkUserImpl(String firstName, String lastName, String username) {
+		this(firstName, lastName, username, -1);
+	}
 
     /**
      * Builds a new {@link SocialNetworkUserImpl}.
@@ -56,6 +64,7 @@ public class SocialNetworkUserImpl<U extends User> extends UserImpl implements S
      */
     public SocialNetworkUserImpl(final String name, final String surname, final String user, final int userAge) {
         super(name, surname, user, userAge);
+        this.followed = new HashMap<>();
     }
 
     /*
@@ -63,20 +72,40 @@ public class SocialNetworkUserImpl<U extends User> extends UserImpl implements S
      * 
      * Implements the methods below
      */
-
+    
     @Override
     public boolean addFollowedUser(final String circle, final U user) {
-        return false;
+    	/* check if @user is already followed */
+    	for(List<U> groupList : this.followed.values()) {
+    		if(groupList.contains(user)) {
+    			return false;
+    		}
+    	}
+    	/* finds if the group exists, and then adds the user to the group's list */
+    	if(this.followed.containsKey(circle)) {
+    		if(!this.followed.get(circle).contains(user)) {
+    			this.followed.get(circle).add(user);
+    			return true;
+    		}
+    	}
+    	/* otherwise a new key is created with, as its value, a new list composed of the new followed user */
+    	this.followed.put(circle, new ArrayList<>(List.of(user)));
+    	return true;
     }
 
-    @Override
     public Collection<U> getFollowedUsersInGroup(final String groupName) {
-        return null;
+    	if(this.followed.containsKey(groupName)) {
+    		return new ArrayList<U>(List.copyOf(this.followed.get(groupName)));
+    	}
+    	return new ArrayList<U>();
     }
 
-    @Override
     public List<U> getFollowedUsers() {
-        return null;
+        List<U> followedUsers = new ArrayList<>();
+        for(List<U> groupList : this.followed.values()) {
+        	followedUsers.addAll(groupList);
+        }
+    	return new ArrayList<U>(List.copyOf(followedUsers));
     }
 
 }
