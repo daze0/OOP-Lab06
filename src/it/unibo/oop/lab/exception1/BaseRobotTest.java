@@ -2,7 +2,9 @@ package it.unibo.oop.lab.exception1;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
@@ -33,27 +35,34 @@ public final class BaseRobotTest {
         /*
          * 2) Move the robot right until it touches the world limit
          */
-        for (int i = 0; i < RobotEnvironment.WORLD_X_UPPER_LIMIT; i++) {
-            // check if position if coherent
-            assertTrue("[CHECKING MOVING RIGHT]", r1.moveRight());
+        try {
+        	for (int i = 0; i < RobotEnvironment.WORLD_X_UPPER_LIMIT; i++) {
+        		// moves right
+        		r1.moveRight();
+        	}
+        	// reached the right limit of the world
+        	r1.moveRight();
+        	// checking positions x=50; y=0
+        	fail("Shouldn't have arrived this far!");
+        	assertEquals("[MOVING RIGHT ROBOT POS X]", RobotEnvironment.WORLD_X_UPPER_LIMIT, r1.getEnvironment().getCurrPosX());
+        	assertEquals("[MOVING RIGHT ROBOT POS Y]", 0, r1.getEnvironment().getCurrPosY());
+        	/*
+        	 * 2) Move to the top until it reaches the upper right conrner of the world
+        	 */
+        	for (int i = 0; i < RobotEnvironment.WORLD_Y_UPPER_LIMIT; i++) {
+        		// moves up
+        		r1.moveUp();
+        	}
+        	// reached the upper limit of the world
+        	r1.moveUp();
+        	// checking positions x=50; y=80
+        	fail("Shouldn't have arrived this far!");
+        	assertEquals("[MOVING RIGHT ROBOT POS X]", RobotEnvironment.WORLD_X_UPPER_LIMIT, r1.getEnvironment().getCurrPosX());
+        	assertEquals("[MOVING RIGHT ROBOT POS Y]", RobotEnvironment.WORLD_Y_UPPER_LIMIT, r1.getEnvironment().getCurrPosY());
+        } catch(PositionOutOfBoundException e) {
+        	assertNotNull(e);
+        	System.out.println(e.getMessage()); 
         }
-        // reached the right limit of the world
-        assertFalse("[CHECKING MOVING RIGHT]", r1.moveRight());
-        // checking positions x=50; y=0
-        assertEquals("[MOVING RIGHT ROBOT POS X]", RobotEnvironment.WORLD_X_UPPER_LIMIT, r1.getEnvironment().getCurrPosX());
-        assertEquals("[MOVING RIGHT ROBOT POS Y]", 0, r1.getEnvironment().getCurrPosY());
-        /*
-         * 2) Move to the top until it reaches the upper right conrner of the world
-         */
-        for (int i = 0; i < RobotEnvironment.WORLD_Y_UPPER_LIMIT; i++) {
-            // check if position if coherent
-            assertTrue("[CHECKING MOVING UP]", r1.moveUp());
-        }
-        // reached the upper limit of the world
-        assertFalse("[CHECKING MOVING UP]", r1.moveUp());
-        // checking positions x=50; y=80
-        assertEquals("[MOVING RIGHT ROBOT POS X]", RobotEnvironment.WORLD_X_UPPER_LIMIT, r1.getEnvironment().getCurrPosX());
-        assertEquals("[MOVING RIGHT ROBOT POS Y]", RobotEnvironment.WORLD_Y_UPPER_LIMIT, r1.getEnvironment().getCurrPosY());
     }
 
     /**
@@ -63,25 +72,33 @@ public final class BaseRobotTest {
     @Test
     public void testRobotBatteryBase() {
         final Robot r2 = new Robot("SimpleRobot2", 20);
-        /*
-         * Repeatedly move the robot up and down until the battery is completely
-         * exhausted.
-         */
-        while (r2.getBatteryLevel() > 0) {
-            r2.moveUp();
-            r2.moveDown();
+        try {
+        	/*
+        	 * Repeatedly move the robot up and down until the battery is completely
+        	 * exhausted.
+        	 */
+        	while (r2.getBatteryLevel() > 0) {
+        		r2.moveUp();
+        		r2.moveDown();
+        	}
+        	// verify battery level:
+        	// expected, actual, delta (accepted error as we deal with decimal
+        	// values: in this case we accept NO ERROR, which is generally bad)
+        	assertEquals(0d, r2.getBatteryLevel(), 0);
+        	// verify position: same as start position
+        	assertEquals("[CHECKING ROBOT INIT POS Y]", 0, r2.getEnvironment().getCurrPosY());
+        	// out of world: returns false
+        	r2.moveUp();
+        	// recharge battery
+        	r2.recharge();
+        	// verify battery level
+        	assertEquals(100, r2.getBatteryLevel(), 0);
+        } catch(NotEnoughBatteryException e) {
+        	assertNotNull(e);
+        	System.out.println(e.getMessage());
+        } catch(PositionOutOfBoundException e) {
+        	assertNotNull(e);
+        	System.out.println(e.getMessage());
         }
-        // verify battery level:
-        // expected, actual, delta (accepted error as we deal with decimal
-        // values: in this case we accept NO ERROR, which is generally bad)
-        assertEquals(0d, r2.getBatteryLevel(), 0);
-        // verify position: same as start position
-        assertEquals("[CHECKING ROBOT INIT POS Y]", 0, r2.getEnvironment().getCurrPosY());
-        // out of world: returns false
-        assertFalse("[CHECKING MOVING UP]", r2.moveUp());
-        // recharge battery
-        r2.recharge();
-        // verify battery level
-        assertEquals(100, r2.getBatteryLevel(), 0);
     }
 }
