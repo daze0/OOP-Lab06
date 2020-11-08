@@ -41,18 +41,13 @@ public class GraphImpl<N> implements Graph<N> {
 		}
 		return new HashSet<N>();
 	}
-
+	
 	public List<N> getPath(N source, N target) {
-		List<N> list = new ArrayList<>();
-		this.pathBuilder(source, target, list);
-		return List.copyOf(list);
+		return this.pathBuilder(source, target, new ArrayList<N>());
 	}
 	
-	private void pathBuilder(N elem, N target, List<N> path) {
-		if(path.size() != 0 && this.getLast(path).equals(target)) {
-			return;
-		}
-		else {
+	private List<N> pathBuilder(N elem, N target, List<N> path) {
+		if(!(path.size() != 0 && this.getLast(path).equals(target))) {
 			path.add(elem);
 			for(Pair<N, Set<N>> nodeEdgesPair : this.adjacency) {
 				if(this.getLast(path).equals(nodeEdgesPair.getFirst())) {
@@ -62,6 +57,7 @@ public class GraphImpl<N> implements Graph<N> {
 				}
 			}
 		}
+		return List.copyOf(path);
 	}
 	
 	private N getLast(List<N> list) {
